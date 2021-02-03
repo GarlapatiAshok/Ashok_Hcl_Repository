@@ -1,0 +1,318 @@
+[6:55 AM] Dinesh Kumar (Trainer) (Guest)
+    
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+ <%@ page import="java.util.List" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+<% //Scriptlet tag
+//available objects request response out exception page application session 
+    String userName = (String) request.getAttribute("userName");
+    out.append("<h1> " + userName + "</h1>");
+    List<String> messageList =(List<String>) request.getAttribute("messages");
+    int i = 0;
+%>
+    <ol>
+        <% for (i = 0; i<messageList.size(); i++)  {???????  %>
+            <li> <%out.append(messageList.get(i)); %> </li>
+    <% }??????? %>
+    
+    <br><br>
+    <h2> Deals</h2>
+    <%=request.getAttribute("deal") %> <br>
+</ol>
+<a href="nextData" > Next Data for this user</a>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[6:55 AM] Dinesh Kumar (Trainer) (Guest)
+    
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1" session="false"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Web Basic Project</title>
+</head>
+<body>
+<h1> Welcome to Web Dynamic Project</h1>
+<% 
+Cookie ck1 = new Cookie("interest", "gadget");
+response.addCookie(ck1);
+Cookie ck2 = new Cookie("agegroup", "35");
+response.addCookie(ck2);
+
+
+String errorMessage = (String) request.getAttribute("errorMessage");
+out.append(errorMessage==null? "": errorMessage);%>
+<br>
+<form  action="login" method="post">
+    User: <input type="text" name="user" id="user" /> <br><br>
+    Pass: <input type="password" name="pass" id="pass" /> <br><br>
+    <input type="submit" value="Login" />
+
+
+</form>
+
+
+<br>
+<a href="changepass.jsp" > Change Your password </a>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[6:55 AM] Dinesh Kumar (Trainer) (Guest)
+    
+package com.hcl.servlet;
+
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Date;
+
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+
+import org.apache.log4j.Logger;
+
+
+import com.hcl.service.TeacherService;
+
+
+/**
+ * Servlet implementation class LoginServlet
+ */
+@WebServlet({??????? "/LoginServlet", "/login" }???????)
+public class LoginServlet extends HttpServlet {???????
+    private static final long serialVersionUID = 1L;
+    private static final Logger log = Logger.getLogger(LoginServlet.class);
+    
+    TeacherService service;
+    
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public LoginServlet() {???????
+        super();
+        try
+        {???????
+            service = new TeacherService();
+            
+        }???????
+        catch(Exception e)
+        {???????
+            System.out.println(e);
+        }???????
+    }???????
+
+
+    /**
+     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+     */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {???????
+        PrintWriter out = response.getWriter();
+        try
+        {???????
+            String user = request.getParameter("user");
+            String password = request.getParameter("pass");
+            System.out.println("received " + user + "," + password);
+            
+            Cookie[] cookies = request.getCookies();
+            for(Cookie ck : cookies)
+            {???????
+                System.out.println(ck.getName() + ":"  + ck.getValue());
+                if(ck.getName().equals("interest") && ck.getValue().equals("gadget"))
+                {???????
+                    request.setAttribute("deal", "Here is the new deal on Gadget");
+                }???????
+            }???????
+            TeacherService service = new TeacherService();
+            if(service.checkPassword(user, password))
+            {???????
+//                out.append("Successful Login");
+                //send the request to DataServlet 
+                //create a session for the user
+                HttpSession session = request.getSession(); //returns seesion of already there or else create new 
+                session.setAttribute("logintime",  new Date());
+                session.setAttribute("userIdForSession", user);
+                
+                log.info(user + " logged in successfully ");
+                request.setAttribute("userId", user);
+                request.setAttribute("userType", "teacher");
+                request.setAttribute("userName", "Dummy Name");
+                
+                request.getRequestDispatcher("DataServlet").forward(request, response);
+            }???????
+            else
+            {???????
+//                out.append("Login Failed");
+                //go back to login page
+                request.setAttribute("errorMessage", "Either userid or password is incorrect");
+//                request.getRequestDispatcher("index.jsp").forward(request, response);
+                
+//                response.sendRedirect("index.jsp"); //client comes to know 
+                
+                out.append("You have entered wrong user id or password ");
+                request.getRequestDispatcher("index.jsp").include(request, response);
+                
+            }???????
+
+
+        }???????
+        catch(Exception e)
+        {???????
+            System.out.println(e);
+            out.append("some error occurred please try again ");
+        }???????
+    }???????
+
+
+    /**
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {???????
+        doGet(request, response);
+    }???????
+
+
+}???????
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[6:55 AM] Dinesh Kumar (Trainer) (Guest)
+    
+package com.hcl.servlet;
+
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+
+/**
+ * Servlet implementation class NextDataServlet
+ */
+@WebServlet({??????? "/NextDataServlet", "/nextData" }???????)
+public class NextDataServlet extends HttpServlet {???????
+    private static final long serialVersionUID = 1L;
+       
+    /**
+     * @see HttpServlet#HttpServlet()
+     */
+    public NextDataServlet() {???????
+        super();
+        // TODO Auto-generated constructor stub
+    }???????
+
+
+    /**
+     * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+     */
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {???????
+        PrintWriter out = response.getWriter();
+        HttpSession session = request.getSession();
+        out.append("session user " + session.getAttribute("userIdForSession"));
+        out.append("login time : " + session.getAttribute("logintime"));
+    }???????
+
+
+    /**
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+     */
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {???????
+        // TODO Auto-generated method stub
+        doGet(request, response);
+    }???????
+
+
+}???????
+ 
+
+
+
+
+
+
+
+
